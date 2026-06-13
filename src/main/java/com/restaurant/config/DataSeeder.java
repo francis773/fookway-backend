@@ -48,32 +48,30 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedTables() {
-        // Fixed tokens for all 10 tables
+        // Always ensure fixed tokens for predictable QR codes
         String[] tokens = {
-            "table-01-token-0000-000000000001",
-            "table-02-token-0000-000000000002",
-            "table-03-token-0000-000000000003",
-            "table-04-token-0000-000000000004",
-            "table-05-token-0000-000000000005",
-            "table-06-token-0000-000000000006",
-            "table-07-token-0000-000000000007",
-            "table-08-token-0000-000000000008",
-            "table-09-token-0000-000000000009",
-            "table-10-token-0000-000000000010"
+            "11111111-0000-0000-0000-000000000001",
+            "22222222-0000-0000-0000-000000000002",
+            "33333333-0000-0000-0000-000000000003",
+            "44444444-0000-0000-0000-000000000004",
+            "55555555-0000-0000-0000-000000000005",
+            "66666666-0000-0000-0000-000000000006",
+            "77777777-0000-0000-0000-000000000007",
+            "88888888-0000-0000-0000-000000000008",
+            "99999999-0000-0000-0000-000000000009",
+            "aaaaaaaa-0000-0000-0000-00000000000a"
         };
 
+        // Delete and recreate all tables to ensure fixed tokens
+        tableRepository.deleteAll();
+
         for (int i = 1; i <= 10; i++) {
-            final int tableNum = i;
-            final String token = tokens[i - 1];
-            tableRepository.findByTableNumber(tableNum).ifPresentOrElse(
-                t -> { t.setQrToken(token); tableRepository.save(t); },
-                () -> tableRepository.save(RestaurantTable.builder()
-                        .tableNumber(tableNum)
-                        .capacity(tableNum <= 3 ? 2 : tableNum <= 7 ? 4 : 6)
-                        .qrToken(token)
-                        .active(true)
-                        .build())
-            );
+            tableRepository.save(RestaurantTable.builder()
+                    .tableNumber(i)
+                    .capacity(i <= 3 ? 2 : i <= 7 ? 4 : 6)
+                    .qrToken(tokens[i - 1])
+                    .active(true)
+                    .build());
         }
         System.out.println(">>> 10 restaurant tables ready with fixed tokens");
     }
