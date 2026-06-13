@@ -48,22 +48,34 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedTables() {
-        if (tableRepository.count() > 0) return;
+        // Fixed tokens for all 10 tables
+        String[] tokens = {
+            "table-01-token-0000-000000000001",
+            "table-02-token-0000-000000000002",
+            "table-03-token-0000-000000000003",
+            "table-04-token-0000-000000000004",
+            "table-05-token-0000-000000000005",
+            "table-06-token-0000-000000000006",
+            "table-07-token-0000-000000000007",
+            "table-08-token-0000-000000000008",
+            "table-09-token-0000-000000000009",
+            "table-10-token-0000-000000000010"
+        };
 
         for (int i = 1; i <= 10; i++) {
-            tableRepository.save(RestaurantTable.builder()
-                    .tableNumber(i)
-                    .capacity(i <= 3 ? 2 : i <= 7 ? 4 : 6)
-                    .qrToken(UUID.randomUUID().toString())
-                    .active(true)
-                    .build());
+            final int tableNum = i;
+            final String token = tokens[i - 1];
+            tableRepository.findByTableNumber(tableNum).ifPresentOrElse(
+                t -> { t.setQrToken(token); tableRepository.save(t); },
+                () -> tableRepository.save(RestaurantTable.builder()
+                        .tableNumber(tableNum)
+                        .capacity(tableNum <= 3 ? 2 : tableNum <= 7 ? 4 : 6)
+                        .qrToken(token)
+                        .active(true)
+                        .build())
+            );
         }
-        // Also add a fixed-token table for easy testing
-        tableRepository.findByTableNumber(1).ifPresent(t -> {
-            t.setQrToken("11111111-0000-0000-0000-000000000001");
-            tableRepository.save(t);
-        });
-        System.out.println(">>> 10 restaurant tables seeded");
+        System.out.println(">>> 10 restaurant tables ready with fixed tokens");
     }
 
     private void seedMenuItems() {
